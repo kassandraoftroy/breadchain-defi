@@ -1,0 +1,20 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "IWETH",
+  "sourceName": "contracts/interfaces/IWETH.sol",
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "deposit",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}
