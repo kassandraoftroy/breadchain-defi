@@ -8,30 +8,26 @@ import "./token/ERC20Detailed.sol";
 import "./interfaces/ICERC20.sol";
 import "./interfaces/IWETH.sol";
 
-contract Dough is Ownable, ERC20, ERC20Detailed {
-    using SafeMath for uint256;
-
+contract Yeast is Ownable, ERC20, ERC20Detailed {
     address private constant ETH = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
-    IWETH private WETH;
 
     IERC20 public reserveToken;
     ICERC20 public cReserveToken;
     uint256 public totalReserve;
     uint256 public mintFeeBPS;
-    mapping(address => bool) treasurers;
+    mapping(address => mapping (address => uint256)) withdrawAllowance;
 
     event Minted(address sender, uint256 amount);
     event Burned(address sender, uint256 amount);
+    event WithdrawalApproval(address spender, address token, uint256 amount);
 
     constructor(
         address _reserveTokenAddress,
         address _cReserveTokenAddress,
-        uint256 _mintFeeBPS,
-        address _wethTokenAddress
-    ) public ERC20Detailed("Breadchain Wrapped Dai", "DOUGH", 18) {
+        uint256 _mintFeeBPS
+    ) public ERC20Detailed("Breadchain Crowdstaking", "YEAST", 18) {
         reserveToken = IERC20(_reserveTokenAddress);
         cReserveToken = ICERC20(_cReserveTokenAddress);
-        WETH = IWETH(_wethTokenAddress);
         mintFeeBPS = _mintFeeBPS;
     }
 
@@ -51,18 +47,25 @@ contract Dough is Ownable, ERC20, ERC20Detailed {
         totalReserve = totalReserve.sub(_amount);
     }
 
-    function whitelistTreasurer(address newTreasurer) public onlyOwner {
-        require(!treasurers[newTreasurer], "treasurer already whitelisted");
-        treasurers[newTreasurer] = true;
+    function increaseWithdrawalApproval(address _to, address _tokenAddress, uint256 _amount) public onlyOwner {
+        require(_tokenAddress != address(cReserveToken), "increaseWithdrawalAllowance() cannot withdraw collateral token.");
+        withdrawAllowance[_to][_tokenAddress] = withdrawAllowance[_to][_tokenAddress].add(_amount);
+        emit WithdrawalApproval(_to, _tokenAddress, withdrawAllowance[_to][_tokenAddress]);
     }
 
-    function blacklistTreasurer(address treasurer) public onlyOwner {
-        require(treasurers[treasurer], "target is not a treasurer");
-        treasurers[treasurer] = false;
+    function decreaseWithdrawalApproval(address _to, address _tokenAddress, uint256 _amount) public onlyOwner {
+        require(_tokenAddress != address(cReserveToken), "decreaseWithdrawalAllowance() cannot withdraw collateral token.");
+        withdrawAllowance[_to][_tokenAddress] = withdrawAllowance[_to][_tokenAddress].sub(_amount);
+        emit WithdrawalApproval(_to, _tokenAddress, withdrawAllowance[_to][_tokenAddress]);
     }
 
     function withdrawInterest(uint256 _amount) public {
-        require(treasurers[msg.sender] || msg.sender == owner(), "only treasurers or owner can withdraw interest");
+        if (!isOwner()) {
+            uint256 currentAllowance = withdrawAllowance[msg.sender][address(reserveToken)];
+            require(currentAllowance >= _amount, "withdrawInterest() not enough withdrawAllowance");
+            withdrawAllowance[msg.sender][address(reserveToken)] = currentAllowance.sub(_amount);
+            emit WithdrawalApproval(msg.sender, address(reserveToken), withdrawAllowance[msg.sender][address(reserveToken)]);
+        }
         uint256 interest = reserveDifferential();
         require(interest >= _amount, "withdrawInterest() interest accrued is below withdraw amount");
         require(cReserveToken.redeemUnderlying(_amount) == 0, "withdrawInterest() cERC20.redeemUnderlying failed.");
@@ -70,14 +73,19 @@ contract Dough is Ownable, ERC20, ERC20Detailed {
     }
 
     function withdrawToken(address _tokenAddress, uint256 _amount) public {
-        require(treasurers[msg.sender] || msg.sender == owner(), "only treasurers or owner can withdraw tokens");
         require(_tokenAddress != address(cReserveToken), "withdrawToken() cannot withdraw collateral token.");
+        if (!isOwner()) {
+            uint256 currentAllowance = withdrawAllowance[msg.sender][_tokenAddress];
+            require(currentAllowance >= _amount, "withdrawInterest() not enough withdrawAllowance");
+            withdrawAllowance[msg.sender][_tokenAddress] = currentAllowance.sub(_amount);
+            emit WithdrawalApproval(msg.sender, _tokenAddress, withdrawAllowance[msg.sender][_tokenAddress]);
+        }
         if (_tokenAddress == ETH) {
             require(address(this).balance >= _amount);
-            WETH.deposit.value(_amount)();
-            _tokenAddress = WETH;
+            msg.sender.transfer(_amount);
+        } else {
+            require(IERC20(_tokenAddress).transfer(msg.sender, _amount), "withdrawToken() ERC20.transfer failed.");
         }
-        require(IERC20(_tokenAddress).transfer(msg.sender, _amount), "withdrawToken() ERC20.transfer failed.");
     }
 
     function reserveBalance() public view returns (uint256) {

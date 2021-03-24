@@ -9,13 +9,12 @@ module.exports = async (hre) => {
     const { deployments } = hre;
     const { deploy } = deployments;
     const { deployer } = await hre.getNamedAccounts();
-    await deploy("Dough", {
+    await deploy("Yeast", {
       from: deployer,
       args: [
         hre.network.config.daiAddress,
         hre.network.config.cDaiAddress,
-        500, // 500/10000 i.e. 5%
-        hre.network.config.wethAddress,
+        200, // 500/10000 i.e. 5%
       ],
     });
 };
@@ -26,4 +25,4 @@ module.exports.skip = async (hre) => {
   return skip ? true : false;
 };
 
-module.exports.tags = ["Dough"];
+module.exports.tags = ["Yeast"];
