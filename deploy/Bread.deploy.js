@@ -1,20 +1,19 @@
 module.exports = async (hre) => {
     if (hre.network.name === "mainnet") {
       console.log(
-        "\n\n Deploying Dough to mainnet. Hit ctrl + c to abort"
+        "\n\n Deploying BREAD to mainnet. Hit ctrl + c to abort"
       );
-      console.log("❗ Dough DEPLOYMENT: VERIFY");
+      console.log("❗ BREAD DEPLOYMENT: VERIFY");
       await new Promise(r => setTimeout(r, 30000));
     }
     const { deployments } = hre;
     const { deploy } = deployments;
     const { deployer } = await hre.getNamedAccounts();
-    await deploy("Yeast", {
+    await deploy("Bread", {
       from: deployer,
       args: [
         hre.network.config.daiAddress,
-        hre.network.config.cDaiAddress,
-        200, // 500/10000 i.e. 5%
+        hre.network.config.cDaiAddress
       ],
     });
 };
@@ -25,4 +24,4 @@ module.exports.skip = async (hre) => {
   return skip ? true : false;
 };
 
-module.exports.tags = ["Yeast"];
+module.exports.tags = ["Bread"];

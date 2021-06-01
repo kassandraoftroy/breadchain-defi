@@ -17,7 +17,7 @@ assert.ok(ALCHEMY_ID, "no Alchemy ID in process.env");
 // @dev fill this out
 const DEPLOYER_MAINNET = "";
 const DEPLOYER_PK_MAINNET = process.env.DEPLOYER_PK_MAINNET;
-const DEPLOYER_RINKEBY = "0x4B5BaD436CcA8df3bD39A095b84991fAc9A226F1";
+const DEPLOYER_RINKEBY = "0xD90fC89e89E3E5b75256b5aA617f887C583b29a2";
 const DEPLOYER_PK_RINKEBY = process.env.DEPLOYER_PK_RINKEBY;
 
 const mainnetAddresses = {

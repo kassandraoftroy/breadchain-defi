@@ -8,13 +8,12 @@ import "./token/ERC20Detailed.sol";
 import "./interfaces/ICERC20.sol";
 import "./interfaces/IWETH.sol";
 
-contract Yeast is Ownable, ERC20, ERC20Detailed {
+contract Bread is Ownable, ERC20, ERC20Detailed {
     address private constant ETH = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
 
     IERC20 public reserveToken;
     ICERC20 public cReserveToken;
     uint256 public totalReserve;
-    uint256 public mintFeeBPS;
     mapping(address => mapping (address => uint256)) withdrawAllowance;
 
     event Minted(address sender, uint256 amount);
@@ -23,21 +22,18 @@ contract Yeast is Ownable, ERC20, ERC20Detailed {
 
     constructor(
         address _reserveTokenAddress,
-        address _cReserveTokenAddress,
-        uint256 _mintFeeBPS
-    ) public ERC20Detailed("Breadchain Crowdstaking", "YEAST", 18) {
+        address _cReserveTokenAddress
+    ) public ERC20Detailed("Breadchain Crowdstaking", "BREAD", 18) {
         reserveToken = IERC20(_reserveTokenAddress);
         cReserveToken = ICERC20(_cReserveTokenAddress);
-        mintFeeBPS = _mintFeeBPS;
     }
 
     function mint(uint256 _amount) public {
-        uint256 rewardAmount = _amount.sub(_amount.mul(mintFeeBPS).div(10000));
-        _handleMint(rewardAmount);
+        _handleMint(_amount);
         require(reserveToken.transferFrom(msg.sender, address(this), _amount), "mint() ERC20.transferFrom failed.");
         require(reserveToken.approve(address(cReserveToken), _amount), "mint() ERC20.approve failed.");
         require(cReserveToken.mint(_amount) == 0, "mint() cERC20.mint failed.");
-        totalReserve = totalReserve.add(rewardAmount);
+        totalReserve = totalReserve.add(_amount);
     }
 
     function burn(uint256 _amount) public {
