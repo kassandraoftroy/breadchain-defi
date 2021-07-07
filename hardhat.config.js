@@ -17,7 +17,7 @@ assert.ok(ALCHEMY_ID, "no Alchemy ID in process.env");
 // @dev fill this out
 const DEPLOYER_MAINNET = "";
 const DEPLOYER_PK_MAINNET = process.env.DEPLOYER_PK_MAINNET;
-const DEPLOYER_RINKEBY = "0xD90fC89e89E3E5b75256b5aA617f887C583b29a2";
+const DEPLOYER_RINKEBY = "";
 const DEPLOYER_PK_RINKEBY = process.env.DEPLOYER_PK_RINKEBY;
 
 const mainnetAddresses = {
@@ -59,7 +59,7 @@ module.exports = {
       // timeout: 150000,
       forking: {
         url: `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_ID}`,
-        blockNumber: 11712566,
+        blockNumber: 12780870,
       },
       ...mainnetAddresses,
     },

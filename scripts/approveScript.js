@@ -10,7 +10,7 @@ const approve = async (admin, tokenAddress, approveAddress, amount) => {
 (async () => {
     const [admin] = await ethers.getSigners();
     const tokAddr = network.config.daiAddress;
-    const approveAddr = (await deployments.get("Yeast")).address;
+    const approveAddr = (await deployments.get("Bread")).address;
     const amount = ethers.utils.parseEther("100");
     await approve(admin, tokAddr, approveAddr, amount);
 })();
