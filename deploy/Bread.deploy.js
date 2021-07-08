@@ -3,7 +3,6 @@ module.exports = async (hre) => {
       console.log(
         "\n\n Deploying BREAD to mainnet. Hit ctrl + c to abort"
       );
-      console.log("❗ BREAD DEPLOYMENT: VERIFY");
       await new Promise(r => setTimeout(r, 30000));
     }
     const { deployments } = hre;
@@ -14,13 +13,13 @@ module.exports = async (hre) => {
       args: [
         hre.network.config.daiAddress,
         hre.network.config.cDaiAddress
-      ],
+      ]
     });
 };
 
 module.exports.skip = async (hre) => {
-  const skip =
-    hre.network.name === "mainnet"
+  const skip = false;
+  //hre.network.name === "mainnet"
   return skip ? true : false;
 };
 

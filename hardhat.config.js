@@ -13,11 +13,7 @@ require("dotenv").config();
 // @dev Put this in .env
 const ALCHEMY_ID = process.env.ALCHEMY_ID;
 assert.ok(ALCHEMY_ID, "no Alchemy ID in process.env");
-
-// @dev fill this out
-const DEPLOYER_MAINNET = "";
 const DEPLOYER_PK_MAINNET = process.env.DEPLOYER_PK_MAINNET;
-const DEPLOYER_RINKEBY = "";
 const DEPLOYER_PK_RINKEBY = process.env.DEPLOYER_PK_RINKEBY;
 
 const mainnetAddresses = {
@@ -48,9 +44,7 @@ module.exports = {
   // hardhat-deploy
   namedAccounts: {
     deployer: {
-      default: 0,
-      mainnet: DEPLOYER_MAINNET,
-      rinkeby: DEPLOYER_RINKEBY,
+      default: 0
     },
   },
   networks: {
@@ -68,7 +62,6 @@ module.exports = {
       accounts: DEPLOYER_PK_MAINNET ? [DEPLOYER_PK_MAINNET] : [],
       chainId: 1,
       url: `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_ID}`,
-      gasPrice: parseInt(utils.parseUnits("1", "gwei")),
       ...mainnetAddresses,
     },
 
